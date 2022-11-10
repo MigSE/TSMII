@@ -34,10 +34,10 @@ se guarda un punto meta
 Para el punto se comprueba que este pertenezca al espacio de configuración
 Se traza un vector desde el punto origen del robot hacia el punto destino
 se determinan los parámetros del vector
-![Cinemática del robot](/images/imagen1.png)
+![Cinemática del robot](images/imagen1.png)
 donde x. y y. son las velocidades lineales en el cuadro inercial
-![Transformaciones lineales](/images/imagen2.png)
-![Descripción del robot en el nuevo marco de referencia](/images/imagen3.png)
+![Transformaciones lineales](images/imagen2.png)
+![Descripción del robot en el nuevo marco de referencia](images/imagen3.png)
 
 Un resultado de las trayectorias se muestra a continuación:
 ![Trayectorias del algoritmo](images/paths.png)
