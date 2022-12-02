@@ -1,0 +1,8 @@
+geometry_msgs/Pose2D target
+---
+geometry_msgs/Pose2D goal_result
+float32 error_dist
+float32 error_orient
+time duration
+bool success
+string status_message
