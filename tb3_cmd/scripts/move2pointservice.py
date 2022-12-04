@@ -120,6 +120,9 @@ def gotopoint(goal):
             rospy.loginfo(f"On GOAL, posicion act x: {tb3_go2point._pose_act.x:.6f}, y: {tb3_go2point._pose_act.y:.6f}, theta: {tb3_go2point._pose_act.theta:.6f} rads.")
             rospy.loginfo(f"Elpsed time: {elapse_time.to_sec():.4f} seg.")
             response.duration=elapse_time
+            response.goal_result.x=tb3_go2point._pose_act.x
+            response.goal_result.y=tb3_go2point._pose_act.y
+            response.goal_result.theta=tb3_go2point._pose_act.theta
             break
     
     response.success= True

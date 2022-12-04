@@ -22,6 +22,10 @@ if __name__ == "__main__":
     try:
         move2point=rospy.ServiceProxy('/move_2_point_service',MovetoPoint)
         response=move2point(req)
+        print("goal result")
+        print(f"    x: {response.goal_result.x}")
+        print(f"    y: {response.goal_result.y}")
+        print(f"    theta: {response.goal_result.theta}")
         print(f"error_dist: {response.error_dist}")
         print(f"error orient: {response.error_orient}")
         print(f"duration: {response.duration.to_sec():.4f} segundos")
