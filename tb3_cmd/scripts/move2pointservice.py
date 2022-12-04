@@ -1,9 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env/ python3
 
-from tb3_cmd.srv import MovetoPoint,MovetoPointRequest
+from tb3_cmd.srv import MovetoPoint,MovetoPointResponse
 import rospy
-from geometry_msgs.msg import Twist
-
+from geometry_msgs.msg import Pose2D, Twist
+from nav_msgs.msg import Odometry
+from tf import transformations
+import math
 
 class GoToPoint:
     def __init__(self):
@@ -93,26 +95,64 @@ class GoToPoint:
     def is_goal_reched(self):
         return self._goal_reached
 
-
+def gotopoint(goal):
+    global start_time
+    global flagvel
+    response =MovetoPointResponse()
+    tb3_go2point = GoToPoint()
+    tb3_go2point.set_goal(goal.x,goal.y,goal.theta)
+    rospy.loginfo(f"Destino x: {goal.x} y: {goal.y} theta: {goal.theta}")
+    rate = rospy.Rate(1)
+    
+    if tb3_go2point.getRobotState() == 'STOP':
+        tb3_go2point.start()
+    while (not rospy.is_shutdown()):
+        rospy.loginfo(f"Estado actual {tb3_go2point.getRobotState()}")
+        if tb3_go2point.getRobotState() == 'TWIST':
+            tb3_go2point._head_towards_goal()
+        elif tb3_go2point.getRobotState() == 'GO':
+            tb3_go2point._go_staight()
+        elif tb3_go2point.is_goal_reched():      
+            end_time = rospy.Time.now()
+            elapse_time = end_time - start_time  
+            tb3_go2point.stop()
+            response.error_orient,response.error_dist=tb3_go2point._compute_goal()
+            rospy.loginfo(f"On GOAL, posicion act x: {tb3_go2point._pose_act.x:.6f}, y: {tb3_go2point._pose_act.y:.6f}, theta: {tb3_go2point._pose_act.theta:.6f} rads.")
+            rospy.loginfo(f"Elpsed time: {elapse_time.to_sec():.4f} seg.")
+            response.duration=elapse_time
+            break
+    
+    response.success= True
+    response.status_message="Tarea completada"
+    flagvel=0
+    return response
 
 flagvel=0
+start_time=0
 
 def on_velocity_update(value):
     xvelocity=value.linear.x
-    #rospy.loginfo(f"Velocidad del robot {xvelocity}")
-    if xvelocity != 0:
+    angvelocity=value.angular.z
+    global flagvel
+    if xvelocity != 0 or angvelocity !=0 :
         flagvel=1
+    
 
 
 def move2pointHandler(req):
-    try:
-        if flagvel == 0:
-            rospy.loginfo("moviendo al robot")
-        
-    except Exception as error:
-        rospy.loginfo(f"Error {error}")
+    response=MovetoPointResponse()
+    global start_time
+    start_time = rospy.Time.now()
+    if flagvel == 0:
+        response.status_message="Ejecutando Servicio"
+        response=gotopoint(req.target)
 
-    
+
+    else:
+        response.success = False
+        response.status_message="Robot en movimiento, no es posible ejecutar servicio"
+    return response
+
     
 
 if __name__ == "__main__":
